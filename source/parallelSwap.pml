@@ -8,6 +8,9 @@ int array[NUMBER_OF_PROCESSES];
 bool arrayInitialized = false
 
 
+bool WantCriticalSection[NUMBER_OF_PROCESSES]
+bool IsCriticalBusy = false
+
 
 active [NUMBER_OF_PROCESSES] proctype ParallelSwap()
 {
@@ -34,8 +37,12 @@ active [NUMBER_OF_PROCESSES] proctype ParallelSwap()
 		fi
 	
 	
-	//WaitForCriticalSection:
-	//	
+	WaitForCriticalSection:
+		if
+			:: IsCriticalBusy -> goto WaitForCriticalSection
+			:: else -> IsCriticalBusy = true
+		fi
+		
 	CriticalSection:
 		if
 		::
@@ -43,6 +50,8 @@ active [NUMBER_OF_PROCESSES] proctype ParallelSwap()
 			int temp = array[_pid];
 			array[_pid] = array[j];
 			array[j] = temp;
+			
+			IsCriticalBusy = false
 		fi
 }
 
