@@ -46,6 +46,7 @@ active [NUMBER_OF_PROCESSES] proctype ParallelSwap()
 	CriticalSection:
 		if
 		::
+			//not sure how to "randomly" choose a j here
 			int j = 0;
 			int temp = array[_pid];
 			array[_pid] = array[j];
