@@ -1,0 +1,28 @@
+CS4710
+SPIN Group Project
+Eric Zimmer
+Anthony DuPont
+
+
+	Our Promela model is split up into 6 main parts.  
+	
+	1) The first part is initialization.  In this part we check to see if the process is the first process, 	and if it is it then fills the array with values 0-N then sets the 'arrrayInitialized' variable to true.  	If it is not the first process then it just skips on to the next part.  
+	
+	2) In the second part all of the processes wait until 'arrayInitialized' is set to true, once that 	happens the processes move on to the next part.  
+	
+	3) The third part has an atomic block to check to see if a process can enter the critical section.  	If it can, it moves to the next part, if not then it just continues to wait until it can enter the CS.  
+
+	4) In the fourth part is the actual critical section.  This part selects a random number as the index 	to swap with, and then swaps the value in that processes index with the value in the selected 	index.
+
+	5) The fifth part has all processes that get there wait until every process has finished running.
+
+	6) The final part is cleanup, and checking to make sure everything is still valid.
+
+
+	As far as LTL statements go, we only have one, and that is to make sure that there is never more than 1 process in the critical section at the same time.  We then have 3 assertions to make sure that the program is working as intended at specific points in the execution.  The first assertion checks to make sure that after swaps the same values are still in the array.  The second checks to make sure that the order of the array changed from initialization to where it is at the end.  Finally the third checks to make sure that the correct number of swaps was performed, this is in order to make sure that each process executes.
+
+	
+	Extra Credit
+	By adding in multiple swaps per process our LTL properties are still satisfied.  No errors are thrown by SPIN, and the program still functions as intended.
+
+	The proctypes should be synchronized after each round of swapping.  This should be true, because no proctype can access the array of values while another proctype is modifying it so once a proctype leaves the critical section, when any other process tries to read from the shared array, it should have the same values in the same order as the process that just finished modifying it.
