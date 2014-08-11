@@ -1,6 +1,17 @@
 
 
 
+#define for(I, low, high) \
+	byte I; \
+	I = low; \
+	do \
+	:: (I > high) -> break \
+	::else ->
+
+#define rof(I) \
+	; I++ \
+	od
+
 
 #define NUMBER_OF_PROCESSES 3
 
@@ -8,7 +19,6 @@ int array[NUMBER_OF_PROCESSES];
 bool arrayInitialized = false
 
 
-bool WantCriticalSection[NUMBER_OF_PROCESSES]
 int numberOfProcessesInCritical = 0
 
 
@@ -17,16 +27,10 @@ active [NUMBER_OF_PROCESSES] proctype ParallelSwap()
 	//initialize array with distinct values
 	if 
 		:: (_pid == 0) ->
-			int count = 0;
-			do
-			:: ((count) >= NUMBER_OF_PROCESSES) -> 
-				arrayInitialized = true;
-				break;
-			:: else ->
-				array[count] = count;
-				count++;
-			od;
-		:: else -> skip;
+			for (i, 0, NUMBER_OF_PROCESSES - 1) 
+				array[i] = i;
+			rof (i);
+			arrayInitialized = true;
 	fi
 	
 	//all processes need to wait until array is initialized
