@@ -9,7 +9,7 @@ bool arrayInitialized = false
 
 
 bool WantCriticalSection[NUMBER_OF_PROCESSES]
-bool IsCriticalBusy = false
+int numberOfProcessesInCritical = 0
 
 
 active [NUMBER_OF_PROCESSES] proctype ParallelSwap()
@@ -38,10 +38,13 @@ active [NUMBER_OF_PROCESSES] proctype ParallelSwap()
 	
 	
 	WaitForCriticalSection:
-		if
-			:: IsCriticalBusy -> goto WaitForCriticalSection
-			:: else -> IsCriticalBusy = true
-		fi
+		atomic
+		{
+			if
+				:: (numberOfProcessesInCritical > 0) -> goto WaitForCriticalSection
+				:: else -> numberOfProcessesInCritical++
+			fi
+		}
 		
 	CriticalSection:
 		if
@@ -52,12 +55,26 @@ active [NUMBER_OF_PROCESSES] proctype ParallelSwap()
 			array[_pid] = array[j];
 			array[j] = temp;
 			
-			IsCriticalBusy = false
+			numberOfProcessesInCritical--
 		fi
 }
 
 
 
 
+//#define pInCS (P@CS)
+//#define qInCS (Q@CS)
+
+//#define pTrying (P@TS)
+//#define qTrying (Q@TS)
+
+
+//#define mutex (!(pInCS && qInCS))
+//#define progress4P (pTrying -> <> pInCS)
+//#define progress4Q (qTrying -> <> qInCS)
+
+ltl safety { [] (numberOfProcessesInCritical < 2) }
+//ltl progP { [] progress4P }
+//ltl progQ { [] progress4Q }
 
 
