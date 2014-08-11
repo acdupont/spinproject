@@ -2,6 +2,7 @@
 
 
 #define NUMBER_OF_PROCESSES 3
+#define NUMBER_OF_SWAPS_PER_PROCESS 2
 
 int array[NUMBER_OF_PROCESSES];
 int array_original[NUMBER_OF_PROCESSES];
@@ -40,12 +41,15 @@ active [NUMBER_OF_PROCESSES] proctype ParallelSwap()
 		fi
 	
 	
+	int numberOfSwapsPerformed = 0
+	
 	WaitForCriticalSection:
 		atomic
 		{
 			if
 				:: (numberOfProcessesInCritical > 0) -> goto WaitForCriticalSection
-				:: else -> numberOfProcessesInCritical++
+				:: else -> 
+					numberOfProcessesInCritical++
 			fi
 		}
 		
@@ -59,7 +63,15 @@ active [NUMBER_OF_PROCESSES] proctype ParallelSwap()
 			array[j] = temp;
 			
 			numberOfProcessesInCritical--
-			numberOfCompletedProcesses++
+			numberOfSwapsPerformed++
+			
+			//extra credit
+			if 
+				:: (numberOfSwapsPerformed < NUMBER_OF_SWAPS_PER_PROCESS) -> goto WaitForCriticalSection
+				:: else -> 
+					numberOfCompletedProcesses++
+					skip
+			fi
 		fi
 	
 	WaitForFinish:
@@ -118,13 +130,17 @@ active [NUMBER_OF_PROCESSES] proctype ParallelSwap()
 	od
 	
 	assert(hasDifferentOrder)
+	
+	assert(numberOfSwapsPerformed == NUMBER_OF_SWAPS_PER_PROCESS)
+	
+	progress: skip
 }
 
 
 
 
-//ltl safety { [] (numberOfProcessesInCritical < 2) }
-ltl complete { <> (numberOfCompletedProcesses == NUMBER_OF_PROCESSES) }
+ltl safety { [] (numberOfProcessesInCritical < 2) }
+//ltl complete { <> (numberOfCompletedProcesses == NUMBER_OF_PROCESSES) }
 //ltl complete { (<> [] np_) }
 
 
